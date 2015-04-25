@@ -70,7 +70,11 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define SYSTEM_POWER_DOWN       0x0081
 #define SYSTEM_SLEEP            0x0082
 #define SYSTEM_WAKE_UP          0x0083
-
+#define CHANGE_SEND_MODE        0x0084
+#define DONT_SEND_REPORT        0x0085
+#define CHANGE_BLE_NAME         0x0086
+#define PAIRING_BLE             0x0087
+#define DISCONT_BLE             0x0088
 
 /* key report size(NKRO or boot mode) */
 #if defined(PROTOCOL_PJRC) && defined(NKRO_ENABLE)

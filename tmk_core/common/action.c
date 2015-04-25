@@ -325,6 +325,36 @@ void process_action(keyrecord_t *record)
             break;
 #endif
         case ACT_COMMAND:
+            switch (action.command.opt) {
+                case AC_CHANGE_SEND_MODE:
+                   if (event.pressed) {
+                        host_system_send(CHANGE_SEND_MODE);
+                    } else {
+                        host_system_send(DONT_SEND_REPORT);
+                    }
+                    break;
+                case AC_CHANG_BLE_NAME:
+                    if (event.pressed) {
+                        host_system_send(CHANGE_BLE_NAME);
+                    } else {
+                        host_system_send(DONT_SEND_REPORT);
+                    }
+                    break;
+                case AC_PAIRING_BLE:
+                    if (event.pressed) {
+                        host_system_send(PAIRING_BLE);
+                    } else {
+                        host_system_send(DONT_SEND_REPORT);
+                    }
+                    break;
+                 case AC_DISCONT_BLE:
+                    if (event.pressed) {
+                        host_system_send(DISCONT_BLE);
+                    } else {
+                        host_system_send(DONT_SEND_REPORT);
+                    }
+                    break;
+            }
             break;
 #ifndef NO_ACTION_FUNCTION
         case ACT_FUNCTION:

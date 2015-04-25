@@ -55,7 +55,8 @@ bool matrix_is_on(uint8_t row, uint8_t col);
 matrix_row_t matrix_get_row(uint8_t row);
 /* print matrix for debug */
 void matrix_print(void);
-
+/*fast wakeup only click*/
+bool fast_wake_up_check(void);
 
 /* power control */
 void matrix_power_up(void);

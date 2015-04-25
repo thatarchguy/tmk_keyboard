@@ -94,6 +94,8 @@ bool suspend_wakeup_condition(void)
         if (matrix_get_row(r)) return true;
     }
     return false;
+
+    //return fast_wake_up_check();
 }
 
 // run immediately after wakeup
