@@ -49,8 +49,11 @@ const uint8_t keymaps[][MATRIX_ROWS][MATRIX_COLS] PROGMEM = {
 /*
  * Fn action definition
  */
-
+#ifdef KEYMAP_SECTION_ENABLE
+const uint16_t fn_actions[FN_ACTIONS_COUNT] __attribute__ ((section (".keymap.fn_actions"))) = {
+#else
 const uint16_t fn_actions[] PROGMEM = {
+#endif
     /* Poker2 Layout */
     [0] = ACTION_LAYER_MOMENTARY(1),
     [1] = ACTION_BACKLIGHT_DECREASE(),
@@ -61,43 +64,3 @@ const uint16_t fn_actions[] PROGMEM = {
     [6] = ACTION_PAIRING_BLE(),
     [7] = ACTION_DISCONT_BLE()
 };
-
-
-/*
- * user defined action function
- */
-enum function_id {
-    CTRL_SPACE_I,       // Ctrl + Up(SpaceFN) -> PgUp
-};
-
-void action_function(keyrecord_t *record, uint8_t id, uint8_t opt)
-{
-#   define MODS_CTRL_MASK   (MOD_BIT(KC_LCTRL)|MOD_BIT(KC_RCTRL))
-    static uint8_t ctrl_space_i_prev_ctrl;
-
-    switch (id) {
-        // Ctrl + Up(SpaceFN) -> PgUp
-        case CTRL_SPACE_I:
-            ctrl_space_i_prev_ctrl = get_mods()&MODS_CTRL_MASK;
-            if (record->event.pressed) {
-                if (ctrl_space_i_prev_ctrl) {
-                    del_mods(ctrl_space_i_prev_ctrl);   // remove Ctrl
-                    add_key(KC_PGUP);
-                    send_keyboard_report(); // send PgUp without Ctrl
-                    add_mods(ctrl_space_i_prev_ctrl);   // return Ctrl but not sent
-                } else {
-                    add_key(KC_UP);
-                    send_keyboard_report();
-                }
-            } else {
-                if (ctrl_space_i_prev_ctrl) {
-                    del_key(KC_PGUP);
-                    send_keyboard_report();
-                } else {
-                    del_key(KC_UP);
-                    send_keyboard_report();
-                }
-            }
-            break;
-    }
-}

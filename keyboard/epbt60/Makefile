@@ -56,7 +56,7 @@ SRC =	keymap_common.c \
 ifdef KEYMAP
     SRC := keymap_$(KEYMAP).c $(SRC)
 else
-    SRC := keymap_poker3.c $(SRC)
+    SRC := keymap_poker2.c $(SRC)
 endif
 
 CONFIG_H = config.h
@@ -122,7 +122,7 @@ EXTRAKEY_ENABLE = yes	# Audio control and System control(+450)
 COMMAND_ENABLE = yes    # Commands for debug and configuration
 #SLEEP_LED_ENABLE = yes  # Breathing sleep LED during USB suspend
 NKRO_ENABLE = yes	# USB Nkey Rollover - not yet supported in LUFA
-
+BACKLIGHT_ENABLE = yes
 
 # Optimize size but this may cause error "relocation truncated to fit"
 #EXTRALDFLAGS = -Wl,--relax

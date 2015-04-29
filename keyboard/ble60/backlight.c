@@ -90,11 +90,12 @@ void pwm_led_disable(void)
 void backlight_set(uint8_t level)
 {
     //uart_transmit(level);
-    current_level = 2;
+    current_level = level;
     DDRB |= (1<<6);
-            pwm_led_init();
-        pwm_led_enable();
-    /*
+    //PORTB |= (1<<6);
+    //pwm_led_init();
+   // pwm_led_enable();
+    
     if(level > 0)
     {
         pwm_led_init();
@@ -106,11 +107,7 @@ void backlight_set(uint8_t level)
         pwm_led_disable();
         close_led();
     }
-    */
-}
-void backlight_init(void)
-{
-   
+    
 }
 
 
