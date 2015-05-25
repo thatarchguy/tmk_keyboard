@@ -74,12 +74,14 @@ uint8_t name_cache[BLE_NAME_LEN];
 uint8_t name_cache_p = 0;
 uint8_t last_send_mode = 0;          //save last mode
 uint8_t pairing_press = 0;           // 2 send 0xa6
+
 bool cable_into = false;
 uint32_t last_act = 0;               //last action time sleep 
 uint32_t sleep_time = 0x124F80;      //after 20 minutes sleep
 //uint32_t sleep_time = 0x004e20;      //after 20s sleep
 bool sleeping = false;
-bool isPreConAndWakeUp = false;
+
+bool isFirstConnect = false;        //First connect suspend
 
 static uint8_t keyboard_led_stats = 0;
 
@@ -175,57 +177,51 @@ static void Console_Task(void)
 */
 void EVENT_USB_Device_Connect(void)
 {
-    isPreConAndWakeUp = true;
-    //uart_print("Connect# ");
+    isFirstConnect = true;
+    uart_print("Connect# ");
 }
 
 void EVENT_USB_Device_Disconnect(void)
 {
-    //uart_print("Disconnect# ");
+    uart_print("Disconnect# ");
 }
 
 void EVENT_USB_Device_Reset(void)
 {
-    //uart_print("Reset# ");
+    uart_print("Reset# ");
 }
 
 void EVENT_USB_Device_Suspend()
 {
-    /*
-    if(sleeping)
-    {
+    uart_print("Suspend# ");
+    if(isFirstConnect){
+        isFirstConnect=false;
         return;
     }
-    //uart_print("Suspend# ");
-    if(!isPreConAndWakeUp)
+
+    cable_into = true;
+    uint8_t timeout=200;
+    while(timeout)
     {
-        bool usb_power_state = true;
-        uint8_t timeout=200;
-        while(timeout)
-        {
-            if (PINF & (1<<PF4)) 
-            {
-                timeout--;
-            }
-            else
-            {
-                usb_power_state = false;
-                break;
-            }
-            _delay_ms(10);
+        if (PINF & (1<<PF4)) {
+            timeout--;
         }
-        if(usb_power_state){
-            cable_into = true;
-            //uart_print("mei ba goto sleep");
-            return;
+        else{
+            cable_into = false;
+            break;
         }
+        _delay_ms(10);
     }
-    */
-    //isPreConAndWakeUp= false;
-    last_send_mode = send_mode;
-    send_mode=0;
-    backlight_set(0);
-    cable_into=false;
+    
+    if(cable_into){
+        return;
+    }
+    else{
+        last_send_mode = send_mode;
+        send_mode=0;
+        backlight_set(0);
+    }
+
     #ifdef SLEEP_LED_ENABLE
         sleep_led_enable();
     #endif
@@ -233,8 +229,8 @@ void EVENT_USB_Device_Suspend()
 
 void EVENT_USB_Device_WakeUp()
 {
-    //uart_print("WakeUp# ");
-    //isPreConAndWakeUp = true;
+    uart_print("WakeUp# ");
+
     suspend_wakeup_init();
     #ifdef SLEEP_LED_ENABLE
         sleep_led_disable();
@@ -253,12 +249,13 @@ void EVENT_USB_Device_StartOfFrame(void)
  */
 void EVENT_USB_Device_ConfigurationChanged(void)
 {
-    //uart_print("ConfigurationChanged# ");
-    //isPreConAndWakeUp = false;
+    uart_print("ConfigurationChanged# ");
+
     last_send_mode = send_mode;
     send_mode=1;
     backlight_init();
     cable_into=true;
+
     bool ConfigSuccess = true;
 
     /* Setup Keyboard HID Report Endpoints */
@@ -878,6 +875,7 @@ int main(void)
     sei();
     //last_act = timer_read32();
     keyboard_init();
+    uart_print("hi body2# ");
     if(!cable_into)
     {
         backlight_set(0);
@@ -889,8 +887,8 @@ int main(void)
     #endif
     while (1)
     {
-        /*
-        if (cable_into)
+        
+        if (cable_into && send_mode!=0)
         {
             while (USB_DeviceState == DEVICE_STATE_Suspended) 
             {
@@ -901,6 +899,7 @@ int main(void)
                 }
             }
         }
+        /*
         else
         {
             if(sleeping == false && timer_elapsed32(last_act) > sleep_time ) 

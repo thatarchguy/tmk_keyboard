@@ -55,7 +55,7 @@ enum function_id {
 };
 
 enum macro_id {
-    ALT_TAB,
+    ALT_TAB,ALT_TAB2,
 };
 
 
@@ -96,10 +96,10 @@ const macro_t *action_get_macro(keyrecord_t *record, uint8_t id, uint8_t opt)
 {
     switch (id) {
         case ALT_TAB:
-            return (record->event.pressed ?
-                   // MACRO( I(255), T(H), T(E), T(L), T(L), W(255), T(O), END ) :
-                    MACRO( D(LSFT) ,T(H) , U(LSFT), T(E), T(L), T(L), T(O), END ) :
-                    MACRO( END ));
+            return (record->event.pressed ? MACRO( D(LSFT) ,T(H) , U(LSFT), T(E), T(L), T(L), T(O), END ) :MACRO( END ));
+        case ALT_TAB2:
+            return (record->event.pressed ? MACRO(D(LSFT),T(A),T(S),T(D),U(LSFT),T(F),T(G),T(H), END ) :MACRO( END ));
+                    
     }
     return MACRO_NONE;
 }
@@ -112,6 +112,6 @@ const uint16_t fn_actions[] PROGMEM = {
     /* Poker2 Layout */
     [0] = ACTION_LAYER_MOMENTARY(1),
     [1] = ACTION_BACKLIGHT_DECREASE(),
-    [2] = ACTION_MACRO(ALT_TAB),  
+    [2] = ACTION_MACRO(ALT_TAB2),  
     [3] = ACTION_FUNCTION(SHIFT_ESC),
 };
