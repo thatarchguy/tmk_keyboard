@@ -219,7 +219,9 @@ void EVENT_USB_Device_Suspend()
     else{
         last_send_mode = send_mode;
         send_mode=0;
+        #ifdef BACKLIGHT_ENABLE
         backlight_set(0);
+        #endif
     }
 
     #ifdef SLEEP_LED_ENABLE
@@ -253,7 +255,10 @@ void EVENT_USB_Device_ConfigurationChanged(void)
 
     last_send_mode = send_mode;
     send_mode=1;
+    #ifdef BACKLIGHT_ENABLE
     backlight_init();
+    #endif
+    
     cable_into=true;
 
     bool ConfigSuccess = true;
@@ -845,6 +850,34 @@ static uint8_t key2inputasc(uint8_t key,bool is_shift)
 /*******************************************************************************
  * main
  ******************************************************************************/
+static void setup_mcu(void)
+{
+    /* Disable watchdog if enabled by bootloader/fuses */
+    MCUSR &= ~(1 << WDRF);
+    wdt_disable();
+
+    /* Disable clock division */
+    clock_prescale_set(clock_div_1);
+}
+static void setup_usb(void)
+{
+    // Leonardo needs. Without this USB device is not recognized.
+    USB_Disable();
+
+    USB_Init();
+
+    // for Console_Task
+    USB_Device_EnableSOFEvents();
+    print_set_sendchar(sendchar);
+}
+static void setup_uart()
+{
+    DDRF  &= ~(1<<PF4);
+    PORTF &= ~(1<<PF4);
+    uart_init();
+    unsigned char receivedChar = '0';
+    //uart_print("hi body# ");
+}
 static void SetupHardware(void)
 {
     /* Disable watchdog if enabled by bootloader/fuses */
@@ -854,11 +887,7 @@ static void SetupHardware(void)
     /* Disable clock division */
     clock_prescale_set(clock_div_1);
 
-    DDRF  &= ~(1<<PF4);
-    PORTF &= ~(1<<PF4);
-    uart_init();
-    unsigned char receivedChar = '0';
-    uart_print("hi body# ");
+
 
     // Leonardo needs. Without this USB device is not recognized.
     USB_Disable();
@@ -871,15 +900,20 @@ static void SetupHardware(void)
 int main(void)  __attribute__ ((weak));
 int main(void)
 {
-    SetupHardware();
+    setup_mcu();
+    keyboard_setup();
+    setup_uart();
+    setup_usb();
     sei();
     //last_act = timer_read32();
     keyboard_init();
     uart_print("hi body2# ");
+    #ifdef BACKLIGHT_ENABLE
     if(!cable_into)
     {
         backlight_set(0);
     }
+    #endif
     host_set_driver(&lufa_driver);
 
     #ifdef SLEEP_LED_ENABLE

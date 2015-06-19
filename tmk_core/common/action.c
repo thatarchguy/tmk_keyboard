@@ -333,7 +333,7 @@ void process_action(keyrecord_t *record)
                         host_system_send(DONT_SEND_REPORT);
                     }
                     break;
-                case AC_CHANG_BLE_NAME:
+                case AC_CHANGE_BLE_NAME:
                     if (event.pressed) {
                         host_system_send(CHANGE_BLE_NAME);
                     } else {

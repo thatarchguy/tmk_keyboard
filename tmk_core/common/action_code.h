@@ -305,13 +305,13 @@ enum backlight_opt {
 /* Command */
 enum bluetooth_opt {
     AC_CHANGE_SEND_MODE = 1,
-    AC_CHANG_BLE_NAME = 2,
+    AC_CHANGE_BLE_NAME = 2,
     AC_PAIRING_BLE = 3,
     AC_DISCONT_BLE = 4,
 };
 #define ACTION_COMMAND(id, opt)         ACTION(ACT_COMMAND,  (opt)<<8 | (addr))
 #define ACTION_CHANGE_SEND_MODE()       ACTION(ACT_COMMAND,  AC_CHANGE_SEND_MODE <<8)
-#define ACTION_CHANGE_BLE_NAME()        ACTION(ACT_COMMAND,  AC_CHANG_BLE_NAME <<8)
+#define ACTION_CHANGE_BLE_NAME()        ACTION(ACT_COMMAND,  AC_CHANGE_BLE_NAME <<8)
 #define ACTION_PAIRING_BLE()            ACTION(ACT_COMMAND,  AC_PAIRING_BLE <<8)
 #define ACTION_DISCONT_BLE()            ACTION(ACT_COMMAND,  AC_DISCONT_BLE <<8)
 /* Function */
