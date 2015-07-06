@@ -96,13 +96,13 @@ void bootmagic(void)
     if (bootmagic_scan_keycode(BOOTMAGIC_KEY_DEFAULT_LAYER_5)) { default_layer |= (1<<5); }
     if (bootmagic_scan_keycode(BOOTMAGIC_KEY_DEFAULT_LAYER_6)) { default_layer |= (1<<6); }
     if (bootmagic_scan_keycode(BOOTMAGIC_KEY_DEFAULT_LAYER_7)) { default_layer |= (1<<7); }
-    if (default_layer) {
+    //if (default_layer) {
         //eeconfig_write_default_layer(default_layer);
+      //  default_layer_set((uint32_t)default_layer);
+   // } else {
+       // default_layer = eeconfig_read_default_layer();
         default_layer_set((uint32_t)default_layer);
-    } else {
-        default_layer = eeconfig_read_default_layer();
-        default_layer_set((uint32_t)default_layer);
-    }
+   // }
 }
 
 static bool scan_keycode(uint8_t keycode)
