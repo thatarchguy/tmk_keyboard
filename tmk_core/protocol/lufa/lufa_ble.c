@@ -194,6 +194,7 @@ void EVENT_USB_Device_Reset(void)
 void EVENT_USB_Device_Suspend()
 {
     uart_print("Suspend# ");
+    uart_print("Suspend! ");
     if(isFirstConnect){
         isFirstConnect=false;
         return;
@@ -212,8 +213,18 @@ void EVENT_USB_Device_Suspend()
         }
         _delay_ms(10);
     }
-    
+    if (PINF & (1<<PF4)) {
+        uart_print("cable_into# ");
+    }
+    else{
+        uart_print("notcable_into# ");
+    }
+    uart_print("Suspend$ ");
+    _delay_ms(10);
     if(cable_into){
+        #ifdef BACKLIGHT_ENABLE
+        backlight_set(0);
+        #endif
         return;
     }
     else{
@@ -858,6 +869,11 @@ static void setup_mcu(void)
 
     /* Disable clock division */
     clock_prescale_set(clock_div_1);
+            // disable JTAG
+    MCUCR = (1<<JTD);
+    MCUCR = (1<<JTD);
+    DDRF  &= ~(1<<PF4);
+    PORTF &= ~(1<<PF4);
 }
 static void setup_usb(void)
 {
@@ -872,29 +888,9 @@ static void setup_usb(void)
 }
 static void setup_uart()
 {
-    DDRF  &= ~(1<<PF4);
-    PORTF &= ~(1<<PF4);
     uart_init();
     unsigned char receivedChar = '0';
     //uart_print("hi body# ");
-}
-static void SetupHardware(void)
-{
-    /* Disable watchdog if enabled by bootloader/fuses */
-    MCUSR &= ~(1 << WDRF);
-    wdt_disable();
-
-    /* Disable clock division */
-    clock_prescale_set(clock_div_1);
-
-
-
-    // Leonardo needs. Without this USB device is not recognized.
-    USB_Disable();
-    USB_Init();
-    // for Console_Task
-    USB_Device_EnableSOFEvents();
-    print_set_sendchar(sendchar);
 }
 
 int main(void)  __attribute__ ((weak));
@@ -903,11 +899,18 @@ int main(void)
     setup_mcu();
     keyboard_setup();
     setup_uart();
+    if (PINF & (1<<PF4)) {
+        uart_print("cable_into# ");
+    }
+    else{
+        uart_print("notcable_into# ");
+    }
     setup_usb();
     sei();
     //last_act = timer_read32();
     keyboard_init();
     uart_print("hi body2# ");
+
     #ifdef BACKLIGHT_ENABLE
     if(!cable_into)
     {

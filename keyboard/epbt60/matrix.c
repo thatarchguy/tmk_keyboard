@@ -57,9 +57,7 @@ uint8_t matrix_cols(void)
 
 void matrix_init(void)
 {
-    // disable JTAG
-    MCUCR = (1<<JTD);
-    MCUCR = (1<<JTD);
+
 
     // initialize row and col
     unselect_rows();
