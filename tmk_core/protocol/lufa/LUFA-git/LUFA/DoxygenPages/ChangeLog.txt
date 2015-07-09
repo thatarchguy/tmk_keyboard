@@ -6,21 +6,6 @@
 
  /** \page Page_ChangeLog Project Changelog
   *
-  *  \section Sec_ChangeLogXXXXXX Version XXXXXX
-  *  <b>New:</b>
-  *   - Added support for the Atmel Xplained-MINI series of development kits.
-  *
-  *  <b>Changed:</b>
-  *  - Library Applications:
-  *   - The CDC, DFU, Mass Storage and Printer class bootloaders will no longer run the user application if the application reset
-  *     vector is blank (thanks to Alex Kazik)
-  *   - The CDC, DFU and Printer class bootloaders are now compatible with the original Atmel XPLAIN and Arduino Leonardo boards.
-  *   - The CDC, DFU, Mass Storage and Printer class bootloaders are not compatible with devices with the BOOTRST fuse set and will
-  *     exit automatically unless an external reset was the last reset cause (thanks to Alex Kazik)
-  *
-  *  <b>Fixed:</b>
-  *   - Fixed broken XMEGA serial stream driver due to missing USART base pointer parameter (thanks to William Patterson)
-  *
   *  \section Sec_ChangeLog140928 Version 140928
   *  <b>New:</b>
   *  - Core:
