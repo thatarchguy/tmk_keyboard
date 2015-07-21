@@ -30,6 +30,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "bootmagic.h"
 #include "eeconfig.h"
 #include "backlight.h"
+#ifdef VIBRATOR_ENABLE
+    #include "vibrator.h"
+#endif
 #ifdef MOUSEKEY_ENABLE
 #   include "mousekey.h"
 #endif

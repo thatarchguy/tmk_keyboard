@@ -51,7 +51,9 @@ TARGET_DIR = .
 # List C source files here. (C dependencies are automatically generated.)
 SRC +=	keymap_common.c \
 	matrix.c \
-	led.c
+	led.c \
+	vibrator.c \
+	lufa_ble.c
 
 CONFIG_H = config.h
 
@@ -119,12 +121,16 @@ COMMAND_ENABLE = yes    	# Commands for debug and configuration
 #NKRO_ENABLE = yes		# USB Nkey Rollover
 #KEYMAP_SECTION_ENABLE = yes	# fixed address keymap for keymap editor
 #HHKB_JP = yes			# HHKB JP support
+VIBRATOR_ENABLE = yes       #open vibrator
 
 #OPT_DEFS += -DNO_ACTION_TAPPING
 #OPT_DEFS += -DNO_ACTION_LAYER
 #OPT_DEFS += -DNO_ACTION_MACRO
 
 
+ifdef VIBRATOR_ENABLE
+    OPT_DEFS += -DVIBRATOR_ENABLE
+endif
 #
 # Keymap file
 #

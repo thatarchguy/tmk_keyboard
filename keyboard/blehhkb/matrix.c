@@ -57,17 +57,16 @@ uint8_t matrix_cols(void)
 
 void matrix_init(void)
 {
-        // disable JTAG
-    MCUCR = (1<<JTD);
-    MCUCR = (1<<JTD);
-    
 #ifdef DEBUG
     debug_enable = true;
     debug_keyboard = true;
 #endif
 
+#ifdef VIBRATOR_ENABLE
+    vibrator_init();
+#endif
+    
     KEY_INIT();
-
     // initialize matrix state: all keys off
     for (uint8_t i=0; i < MATRIX_ROWS; i++) _matrix0[i] = 0x00;
     for (uint8_t i=0; i < MATRIX_ROWS; i++) _matrix1[i] = 0x00;
