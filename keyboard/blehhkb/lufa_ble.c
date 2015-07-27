@@ -913,19 +913,22 @@ static void setup_uart()
 static void initAdc()
 {
     ADCSRA |= (1 << ADPS2) | (1 << ADPS1) | (1 << ADPS0); // Set ADC prescaler to 128 - 125KHz sample rate @ 16MHz
-    ADMUX |= (1 << REFS0); // Set ADC reference to AVCC
+    ADMUX |= (1 << REFS1)|(1 << REFS0); // Set ADC reference to AVCC
     ADMUX |= (1 << ADLAR); // Left adjust ADC result to allow easy 8 bit reading
     ADMUX |= (1 << MUX2)|(1 << MUX0);
 }
 static void startAdc()
 {
+    DDRF |= (1<<6);
+    PORTF |= (1<<6);
+
     ADCSRA |= (1 << ADEN);  // Enable ADC
     ADCSRA |= (1 << ADATE); // Enable auto-triggering
     ADCSRA |= (1 << ADSC);  // Start A2D Conversions
     _delay_ms(10);
     //while(ADCSRA&(1<<ADIF));
     uart_transmit(ADCH);
-     _delay_ms(10);
+    //_delay_ms(10);
    // _delay_ms(10);
     ADCSRA &= ~(1<<ADEN);
 }
@@ -955,7 +958,14 @@ int main(void)
     //last_act = timer_read32();
     keyboard_init();
     uart_print("hi body2# ");
-
+    uart_transmit(0x88);
+    uart_transmit(0x88);
+    uart_transmit(0x88);
+    uart_transmit(0x88);
+    startAdc();
+    startAdc();
+    startAdc();
+    startAdc();
     #ifdef BACKLIGHT_ENABLE
     if(!cable_into)
     {
@@ -1006,7 +1016,7 @@ int main(void)
         }
         */
         keyboard_task();
-
+    startAdc();
         #if !defined(INTERRUPT_CONTROL_ENDPOINT)
             USB_USBTask();
         #endif
