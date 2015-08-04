@@ -75,13 +75,15 @@ uint8_t name_cache_p = 0;
 uint8_t last_send_mode = 0;          //save last mode
 uint8_t pairing_press = 0;           // 2 send 0xa6
 
+uint32_t check_cable_timeout;
+bool check_cable_status = false;
+uint8_t check_acc = 0;
 bool cable_into = false;
 uint32_t last_act = 0;               //last action time sleep 
-uint32_t sleep_time = 0x124F80;      //after 20 minutes sleep
-//uint32_t sleep_time = 0x004e20;      //after 20s sleep
+//uint32_t sleep_time = 0x124F80;      //after 20 minutes sleep
+uint32_t sleep_time = 0x004e20;      //after 20s sleep
 bool sleeping = false;
 
-bool isFirstConnect = false;        //First connect suspend
 
 static uint8_t keyboard_led_stats = 0;
 
@@ -94,6 +96,8 @@ static void send_mouse(report_mouse_t *report);
 static void send_system(uint16_t data);
 static void send_consumer(uint16_t data);
 static uint8_t key2inputasc(uint8_t key,bool is_shift);
+static bool cable_status(void);
+
 host_driver_t lufa_driver = {
     keyboard_leds,
     send_keyboard,
@@ -108,7 +112,7 @@ host_driver_t lufa_driver = {
  ******************************************************************************/
 #ifdef CONSOLE_ENABLE
 static void Console_Task(void)
-{
+{7773
     /* Device must be connected and configured for the task to run */
     if (USB_DeviceState != DEVICE_STATE_Configured)
         return;
@@ -177,7 +181,6 @@ static void Console_Task(void)
 */
 void EVENT_USB_Device_Connect(void)
 {
-    isFirstConnect = true;
     uart_print("Connect# ");
 }
 
@@ -194,56 +197,25 @@ void EVENT_USB_Device_Reset(void)
 void EVENT_USB_Device_Suspend()
 {
     uart_print("Suspend# ");
-    uart_print("Suspend! ");
-    if(isFirstConnect){
-        isFirstConnect=false;
-        return;
+    if(send_mode == 1){
+        timer_clear();
+        check_acc = 0;
+        check_cable_timeout = timer_read32();
+        check_cable_status = true;
     }
-
-    cable_into = true;
-    uint8_t timeout=200;
-    while(timeout)
-    {
-        if (PINF & (1<<PF4)) {
-            timeout--;
-        }
-        else{
-            cable_into = false;
-            break;
-        }
-        _delay_ms(10);
-    }
-    if (PINF & (1<<PF4)) {
-        uart_print("cable_into# ");
-    }
-    else{
-        uart_print("notcable_into# ");
-    }
-    uart_print("Suspend$ ");
-    _delay_ms(10);
-    if(cable_into){
-        #ifdef BACKLIGHT_ENABLE
+    
+#ifdef BACKLIGHT_ENABLE
         backlight_set(0);
-        #endif
-        return;
-    }
-    else{
-        last_send_mode = send_mode;
-        send_mode=0;
-        #ifdef BACKLIGHT_ENABLE
-        backlight_set(0);
-        #endif
-    }
+#endif
 
-    #ifdef SLEEP_LED_ENABLE
+#ifdef SLEEP_LED_ENABLE
         sleep_led_enable();
-    #endif
+#endif
 }
 
 void EVENT_USB_Device_WakeUp()
 {
     uart_print("WakeUp# ");
-
     suspend_wakeup_init();
     #ifdef SLEEP_LED_ENABLE
         sleep_led_disable();
@@ -263,14 +235,16 @@ void EVENT_USB_Device_StartOfFrame(void)
 void EVENT_USB_Device_ConfigurationChanged(void)
 {
     uart_print("ConfigurationChanged# ");
-
+    sleeping=false;
+    check_cable_status = false;
     last_send_mode = send_mode;
     send_mode=1;
+    cable_into=true;
+
     #ifdef BACKLIGHT_ENABLE
     backlight_init();
     #endif
-    
-    cable_into=true;
+
 
     bool ConfigSuccess = true;
 
@@ -456,6 +430,7 @@ static void send_keyboard(report_keyboard_t *report)
     */
     if(send_mode == 0)
     {
+        last_act = timer_read32();
         uint8_t len = 0;
         uint8_t i = 0;
         uint8_t start_hid=HID_LEN;
@@ -609,13 +584,18 @@ static void send_system(uint16_t data)
     if(data == CHANGE_SEND_MODE)
     {
         last_send_mode = send_mode;
-        if (PINF & (1<<PF4)) 
+        if (cable_status())
         { 
             send_mode=send_mode==1?0:1;
         }
         else
         {
             send_mode=0;
+        }
+        if(send_mode==0){
+            timer_clear();
+            last_act = timer_read32();
+            last_send_mode = send_mode;
         }
         return;
     }
@@ -858,6 +838,15 @@ static uint8_t key2inputasc(uint8_t key,bool is_shift)
     
     return ret;
 }
+static bool cable_status(void)
+{
+    if (PINF & (1<<PF4)) {
+        return true;
+    }
+    else{
+        return false;
+    }
+}
 /*******************************************************************************
  * main
  ******************************************************************************/
@@ -879,9 +868,7 @@ static void setup_usb(void)
 {
     // Leonardo needs. Without this USB device is not recognized.
     USB_Disable();
-
     USB_Init();
-
     // for Console_Task
     USB_Device_EnableSOFEvents();
     print_set_sendchar(sendchar);
@@ -890,89 +877,84 @@ static void setup_uart()
 {
     uart_init();
     unsigned char receivedChar = '0';
-    //uart_print("hi body# ");
 }
 
 int main(void)  __attribute__ ((weak));
 int main(void)
 {
     setup_mcu();
+    setup_usb();
     keyboard_setup();
     setup_uart();
-    if (PINF & (1<<PF4)) {
-        uart_print("cable_into# ");
+    cable_into = cable_status();
+    if (cable_into) {
+        //uart_print("cable_into# ");
     }
     else{
-        uart_print("notcable_into# ");
+        timer_clear();
+        last_act = timer_read32();
+        last_send_mode = send_mode;
+        //uart_print("notcable_into# ");
     }
-    setup_usb();
     sei();
-    //last_act = timer_read32();
     keyboard_init();
-    uart_print("hi body2# ");
+    //uart_print("hi body2# ");
 
-    #ifdef BACKLIGHT_ENABLE
-    if(!cable_into)
+#ifdef BACKLIGHT_ENABLE
+    if(!cable_status())
     {
         backlight_set(0);
     }
-    #endif
+#endif
     host_set_driver(&lufa_driver);
 
-    #ifdef SLEEP_LED_ENABLE
-        sleep_led_init();
-    #endif
+#ifdef SLEEP_LED_ENABLE
+    sleep_led_init();
+#endif
     while (1)
     {
-        
-        if (cable_into && send_mode!=0)
-        {
+        if(check_cable_status && timer_elapsed32(check_cable_timeout) > 100){
+            if(cable_status()){
+                check_acc++ ;
+                check_cable_timeout = timer_read32();
+                if(check_acc>10){//goto sleep
+                    check_cable_status = false;
+                    sleeping = true;
+                }
+            }
+            else{//chang bt mode
+                timer_clear();
+                last_act = timer_read32();
+                last_send_mode = send_mode;
+                send_mode = 0;
+                check_cable_status = false;
+                cable_into = false;
+            }
+        }
+        if(!cable_into && timer_elapsed32(last_act) > sleep_time ){
+            sleeping = true;
+        }
+        if(sleeping){
             while (USB_DeviceState == DEVICE_STATE_Suspended) 
             {
                 suspend_power_down();
-                if (USB_Device_RemoteWakeupEnabled && suspend_wakeup_condition()) 
+                if (suspend_wakeup_condition()) 
                 {
-                    USB_Device_SendRemoteWakeup();
-                }
-            }
-        }
-        /*
-        else
-        {
-            if(sleeping == false && timer_elapsed32(last_act) > sleep_time ) 
-            {
-                //uart_print("sleep");
-                //uart_transmit(BLE_DISCONT);
-                sleeping = true;
-                _delay_ms(10); 
-            }
-            while (sleeping) 
-            {
-                suspend_power_down();
-                if (suspend_wakeup_condition())
-                {
-                    timer_clear();
-                    last_act = timer_read32();
                     sleeping = false;
-                    //suspend_wakeup_init();
-                    break;
+                    if(cable_into){
+                        USB_Device_SendRemoteWakeup();
+                    }else{
+                        timer_clear();
+                        last_act = timer_read32();
+                        break;
+                    }
                 }
             }
         }
-        */
         keyboard_task();
 
         #if !defined(INTERRUPT_CONTROL_ENDPOINT)
             USB_USBTask();
         #endif
     }
-    
 }
-
-/*
-    MCUSR &= ~(1 << WDRF);
-    MCUCR |= (1 << JTD);
-    MCUCR |= (1 << JTD); //close jtag
-
-
-*/
