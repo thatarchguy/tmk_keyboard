@@ -80,8 +80,8 @@ bool check_cable_status = false;
 uint8_t check_acc = 0;
 bool cable_into = false;
 uint32_t last_act = 0;               //last action time sleep 
-//uint32_t sleep_time = 0x124F80;      //after 20 minutes sleep
-uint32_t sleep_time = 0x004e20;      //after 20s sleep
+uint32_t sleep_time = 0x124F80;      //after 20 minutes sleep
+//uint32_t sleep_time = 0x004e20;      //after 20s sleep
 bool sleeping = false;
 
 
