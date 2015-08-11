@@ -82,7 +82,7 @@ void pwm_led_disable(void)
     /* Disable Compare Match Interrupt */
     TIMSK1 &= ~_BV(OCIE1A);
 }
- void pwm_led_toggle(void)
+void pwm_led_toggle(void)
 {
     /* Disable Compare Match Interrupt */
     TIMSK1 ^= _BV(OCIE1A);
@@ -109,7 +109,10 @@ void backlight_set(uint8_t level)
     }
     
 }
-
+uint8_t backlight_get(void)
+{
+    return current_level;
+}
 
 void tick(void)
 {

@@ -83,7 +83,7 @@ uint32_t last_act = 0;               //last action time sleep
 uint32_t sleep_time = 0x124F80;      //after 20 minutes sleep
 //uint32_t sleep_time = 0x004e20;      //after 20s sleep
 bool sleeping = false;
-
+uint8_t bleModeBacklightLevel = 0;
 
 static uint8_t keyboard_led_stats = 0;
 
@@ -932,6 +932,11 @@ int main(void)
             }
         }
         if(!cable_into && timer_elapsed32(last_act) > sleep_time ){
+#ifdef BACKLIGHT_ENABLE
+            bleModeBacklightLevel = backlight_get();
+            backlight_set(0);
+            _delay_ms(10);
+#endif
             sleeping = true;
         }
         if(sleeping){
@@ -944,6 +949,11 @@ int main(void)
                     if(cable_into){
                         USB_Device_SendRemoteWakeup();
                     }else{
+#ifdef BACKLIGHT_ENABLE
+                        if(bleModeBacklightLevel>0){
+                             backlight_init();
+                        }
+#endif
                         timer_clear();
                         last_act = timer_read32();
                         break;
