@@ -26,6 +26,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "action_macro.h"
 #include "action_util.h"
 #include "action.h"
+#include "keymap.h"
 
 #ifdef DEBUG_ACTION
 #include "debug.h"
@@ -354,7 +355,13 @@ void process_action(keyrecord_t *record)
                         host_system_send(DONT_SEND_REPORT);
                     }
                     break;
+                case NOGUI_TOGGLE:
+                    if (event.pressed){
+                        keymap_config.no_gui = !keymap_config.no_gui;
+                    }
+                    break;
             }
+
             break;
 #ifndef NO_ACTION_FUNCTION
         case ACT_FUNCTION:

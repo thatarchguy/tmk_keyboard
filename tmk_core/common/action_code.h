@@ -309,11 +309,16 @@ enum bluetooth_opt {
     AC_PAIRING_BLE = 3,
     AC_DISCONT_BLE = 4,
 };
+enum special_key_opt {
+   NOGUI_TOGGLE = 0,
+};
 #define ACTION_COMMAND(id, opt)         ACTION(ACT_COMMAND,  (opt)<<8 | (addr))
 #define ACTION_CHANGE_SEND_MODE()       ACTION(ACT_COMMAND,  AC_CHANGE_SEND_MODE <<8)
 #define ACTION_CHANGE_BLE_NAME()        ACTION(ACT_COMMAND,  AC_CHANGE_BLE_NAME <<8)
 #define ACTION_PAIRING_BLE()            ACTION(ACT_COMMAND,  AC_PAIRING_BLE <<8)
 #define ACTION_DISCONT_BLE()            ACTION(ACT_COMMAND,  AC_DISCONT_BLE <<8)
+#define ACTION_NOGUI_TOGGLE()           ACTION(ACT_COMMAND,  NOGUI_TOGGLE <<8)
+
 /* Function */
 enum function_opts {
     FUNC_TAP = 0x8,     /* indciates function is tappable */
