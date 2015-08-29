@@ -75,6 +75,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define CHANGE_BLE_NAME         0x0086
 #define PAIRING_BLE             0x0087
 #define DISCONT_BLE             0x0088
+#define ACTION_CAPSLOCK         0x0089
 
 /* key report size(NKRO or boot mode) */
 #if defined(PROTOCOL_PJRC) && defined(NKRO_ENABLE)

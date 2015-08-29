@@ -86,6 +86,7 @@ bool sleeping = false;
 uint8_t bleModeBacklightLevel = 0;
 
 static uint8_t keyboard_led_stats = 0;
+static uint8_t self_keyboard_led_stats = 0;
 
 static report_keyboard_t keyboard_report_sent;
 
@@ -596,6 +597,7 @@ static void send_system(uint16_t data)
             timer_clear();
             last_act = timer_read32();
             last_send_mode = send_mode;
+            keyboard_led_stats = 0;
         }
         return;
     }
@@ -627,7 +629,13 @@ static void send_system(uint16_t data)
     {
         return;
     }
-    
+    else if(data == ACTION_CAPSLOCK)
+    {
+        if(send_mode == 0){
+            keyboard_led_stats = keyboard_led_stats ^ (1<<USB_LED_CAPS_LOCK);
+        }
+        return;
+    }
 
     if (USB_DeviceState != DEVICE_STATE_Configured)
         return;
@@ -929,6 +937,7 @@ int main(void)
                 send_mode = 0;
                 check_cable_status = false;
                 cable_into = false;
+                keyboard_led_stats = 0;
             }
         }
         if(!cable_into && timer_elapsed32(last_act) > sleep_time ){

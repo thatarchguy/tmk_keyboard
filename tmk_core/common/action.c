@@ -419,6 +419,12 @@ void register_code(uint8_t code)
 #endif
 
     else if IS_KEY(code) {
+
+#ifdef ACTION_CAPSLOCK_ENABLE
+        if (KC_CAPSLOCK == code) {
+            host_system_send(ACTION_CAPSLOCK);
+        } 
+#endif
         // TODO: should push command_proc out of this block?
         if (command_proc(code)) return;
 
@@ -494,6 +500,12 @@ void unregister_code(uint8_t code)
 #endif
 
     else if IS_KEY(code) {
+        
+#ifdef ACTION_CAPSLOCK_ENABLE
+    if (KC_CAPSLOCK == code) {
+        host_system_send(DONT_SEND_REPORT);
+    } 
+#endif
         del_key(code);
         send_keyboard_report();
     }
