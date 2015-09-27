@@ -365,6 +365,7 @@ build: elf hex eep lss sym
 
 elf: $(TARGET).elf
 hex: $(TARGET).hex
+bin: $(TARGET).bin
 eep: $(TARGET).eep
 lss: $(TARGET).lss
 sym: $(TARGET).sym
@@ -465,6 +466,11 @@ extcoff: $(TARGET).elf
 	@echo
 	@echo $(MSG_FLASH) $(HEXFILE)
 	$(OBJCOPY) -O $(FORMAT) -R .eeprom -R .fuse -R .lock -R .signature $< $(HEXFILE)
+
+%.bin: %.elf
+	@echo
+	@echo $(MSG_FLASH) $(BINFILE)
+	$(OBJCOPY) -O binary -R .eeprom -R .fuse -R .lock -R .signature $< $(BINFILE)
 
 %.eep: %.elf
 	@echo
