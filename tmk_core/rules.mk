@@ -604,6 +604,7 @@ clean_list :
 	$(REMOVE) $(TARGET).map
 	$(REMOVE) $(TARGET).sym
 	$(REMOVE) $(TARGET).lss
+	$(REMOVE) $(TARGET).bin
 	$(REMOVE) $(OBJ)
 	$(REMOVE) $(LST)
 	$(REMOVE) $(OBJ:.o=.s)
