@@ -67,6 +67,7 @@
 #define BLE_DISCONT         0xA7    //ble disconnect
 
 uint8_t keyboard_idle = 0;
+/* 0: Boot Protocol, 1: Report Protocol(default) */
 uint8_t keyboard_protocol = 1;
 uint8_t send_mode = 0;               //0=BLE ,1=USB ,2=BLE_COMMAND
 uint8_t ble_command_mode = 0;        //0=chang_name ,1=pairing
@@ -372,11 +373,7 @@ void EVENT_USB_Device_ControlRequest(void)
                 if (USB_ControlRequest.wIndex == KEYBOARD_INTERFACE) {
                     Endpoint_ClearSETUP();
                     Endpoint_ClearStatusStage();
-
-                    keyboard_protocol = ((USB_ControlRequest.wValue & 0xFF) != 0x00);
-#ifdef NKRO_ENABLE
-                    keyboard_nkro = !!keyboard_protocol;
-#endif
+                    keyboard_protocol = (USB_ControlRequest.wValue & 0xFF);
                     clear_keyboard();
                 }
             }
@@ -525,7 +522,7 @@ static void send_keyboard(report_keyboard_t *report)
 
     /* Select the Keyboard Report Endpoint */
 #ifdef NKRO_ENABLE
-    if (keyboard_nkro) {
+    if (keyboard_protocol && keyboard_nkro) {
         /* Report protocol - NKRO */
         Endpoint_SelectEndpoint(NKRO_IN_EPNUM);
 
