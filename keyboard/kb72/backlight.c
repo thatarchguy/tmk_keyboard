@@ -43,6 +43,7 @@ uint8_t speed = 1;
 uint8_t current_level = 0;
 uint8_t duty_cycle = 0;
 uint8_t pos = 0;
+uint8_t pflag = 1;
 
 
 void pwm_led_init(void)
@@ -115,9 +116,34 @@ void tick(void)
 {
     if(current_level == 1)
     {
+        duty_cycle = 35;
+    }
+    else if (current_level == 2)
+    {
         duty_cycle = 85;
     }
-    else if(current_level == 2)
+    else if(current_level == 3)
+    {
+        duty_cycle = 145;
+    }
+    else if(current_level == 4)
+    {
+        duty_cycle = 255;
+    }
+    else if(current_level == 5)
+    {
+        if(pflag==1){
+            pos++;
+            pflag=0;
+        }else{
+            pflag=1;
+        }
+        duty_cycle = pgm_read_byte(&breathing_table[0][pos]);
+        if(pos >= 0xff){
+            pos = 0;
+        }
+    }
+    else if(current_level == 6)
     {
         pos++;
         duty_cycle = pgm_read_byte(&breathing_table[0][pos]);
@@ -125,9 +151,97 @@ void tick(void)
             pos = 0;
         }
     }
-    else if(current_level == 3)
+    else if(current_level == 7)
     {
-        duty_cycle = 255;
+        pos+=2;
+        if(pos > 0xff){
+            pos = 0xff;
+        }
+        duty_cycle = pgm_read_byte(&breathing_table[0][pos]);
+        if(pos >= 0xff){
+            pos = 0;
+        }
+    }
+    else if(current_level == 8)
+    {
+        pos+=3;
+        if(pos > 0xff){
+            pos = 0xff;
+        }
+        duty_cycle = pgm_read_byte(&breathing_table[0][pos]);
+        if(pos >= 0xff){
+            pos = 0;
+        }
+    }
+    else if(current_level == 9)
+    {
+        if(pos >0){
+            pos--;
+        }
+        if(pos > 0x7f){
+            pos = 0x7f;
+        }
+        duty_cycle = pgm_read_byte(&breathing_table[0][pos]);
+        if(pos <= 0){
+            pos = 0;
+        }
+    }
+    else if(current_level == 10)
+    {
+        if(pos >0x20){
+            pos--;
+        }
+        if(pos > 0x7f){
+            pos = 0x7f;
+        }
+        duty_cycle = pgm_read_byte(&breathing_table[0][pos]);
+        if(pos <= 0x20){
+            pos = 0x20;
+        }
+    }
+    else if(current_level == 11)
+    {
+       if(pos <0x7f){
+            pos++;
+        }
+        duty_cycle = pgm_read_byte(&breathing_table[0][pos]);
+        if(pos >= 0x7f){
+            pos = 0x7f;
+        }
+    }
+    else if(current_level == 12)
+    {
+        if(pos <0x7f){
+            pos++;
+        }
+        duty_cycle = pgm_read_byte(&breathing_table[0][pos]);
+        if(pos >= 0x7f){
+            pos = 0x7f;
+        }
+    }
+}
+
+void backlight_action(void)
+{
+    if(current_level == 9){
+        pos+=30;
+    }
+    else if(current_level == 10){
+        pos+=20;
+    }
+    else if(current_level == 11){
+        if(pos < 30){
+            pos = 0;
+        }else{
+            pos-=30;
+        }
+    }
+    else if(current_level == 12){
+        if(pos < 0x20){
+            pos = 0x20;
+        }else{
+            pos-=30;
+        }
     }
 }
 
@@ -145,27 +259,3 @@ ISR(TIMER1_COMPA_vect)
         close_led();
     }
 }
-
-//uint8_t step=0;
-//uint8_t duty_cycle=10;
-//uint8_t speed=1;
-/*
-uint8_t acc=0;
-ISR(TIMER1_COMPA_vect)
-{
-    acc++;
-    if(acc==0xff)
-    {
-        acc=0;
-        open_led();
-        step++;
-    }
-    if (acc==pgm_read_byte(&breathing_table[step])) 
-    {
-        close_led();
-    }
-    if(step>=0xff){
-        step=0;
-    }
-}
-*/

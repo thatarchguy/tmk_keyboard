@@ -63,6 +63,11 @@ void process_action(keyrecord_t *record)
 
     if (IS_NOEVENT(event)) { return; }
 
+#ifdef BACKLIGHT_ENABLE
+    if (event.pressed) {
+        backlight_action();
+    }
+#endif
     action_t action = layer_switch_get_action(event.key);
     dprint("ACTION: "); debug_action(action);
 #ifndef NO_ACTION_LAYER
