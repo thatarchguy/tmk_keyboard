@@ -180,6 +180,10 @@ void EVENT_USB_Device_Reset(void)
 void EVENT_USB_Device_Suspend()
 {
     print("[S]");
+#ifdef BACKLIGHT_ENABLE
+        backlight_set(0);
+#endif
+
 #ifdef SLEEP_LED_ENABLE
     sleep_led_enable();
 #endif
