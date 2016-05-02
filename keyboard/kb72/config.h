@@ -24,8 +24,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define PRODUCT_ID      0x1203
 #define DEVICE_VER      0x0012
 #define MANUFACTURER    diyer.so
-#define PRODUCT         diyer75
-#define DESCRIPTION     t.m.k. keyboard firmware for diyer75
+#define PRODUCT         diyer72
+#define DESCRIPTION     t.m.k. keyboard firmware for diyer72
 
 /* key matrix size */
 #define MATRIX_ROWS 6
